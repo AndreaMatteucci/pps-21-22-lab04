@@ -14,10 +14,19 @@ trait Course:
   def teacher: String
 
 object Student:
-  def apply(name: String, year: Int = 2017): Student = ???
+  def apply(name: String, year: Int = 2017): Student = StudentImpl(name, year)
 
+  private case class StudentImpl(override val name: String, override val year: Int) extends Student:
+    private var _list: List[Course] = Nil()
+
+    override def enrolling(course: Course): Unit = _list = append(_list, Cons(course, Nil()))
+    override def courses: List[String] = map(_list)((x:Course)=>x.name)
+    override def hasTeacher(teacher: String): Boolean = contains(map(_list)((x:Course)=>x.teacher), teacher)
+                                                        //(x:Course)=>x.teacher è come scrivere _.teacher
 object Course:
-  def apply(name: String, teacher: String): Course = ???
+  def apply(name: String, teacher: String): Course = CourseImpl(name, teacher)
+
+  private case class CourseImpl(override val name: String, override  val teacher: String) extends Course
 
 @main def checkStudents(): Unit =
   val cPPS = Course("PPS", "Viroli")
@@ -32,11 +41,11 @@ object Course:
   s3.enrolling(cPPS)
   s3.enrolling(cPCD)
   s3.enrolling(cSDR)
+
   println(
     (s1.courses, s2.courses, s3.courses)
-  ) // (Cons(PCD,Cons(PPS,Nil())),Cons(PPS,Nil()),Cons(SDR,Cons(PCD,Cons(PPS,Nil()))))
+  )  //(Cons(PCD,Cons(PPS,Nil())),Cons(PPS,Nil()),Cons(SDR,Cons(PCD,Cons(PPS,Nil()))))
   println(s1.hasTeacher("Ricci")) // true
-
 /** Hints:
   *   - simply implement Course, e.g. with a case class
   *   - implement Student with a StudentImpl keeping a private Set of courses
